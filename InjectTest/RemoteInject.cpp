@@ -38,6 +38,7 @@ DWORD SearchProcessByWindow(WCHAR* WindowName) {
 	return Pid;
 }
 
+
 //根据进程快照获取进程Pid
 //成功返回Pid 失败返回-1
 DWORD SearchProcessBySnapshot(WCHAR* ProcessName) {
