@@ -12,3 +12,6 @@ DWORD SearchProcessBySnapshot(WCHAR* ProcessName);
 
 //根据Pid注入进程
 bool Inject(DWORD Pid, WCHAR* path);
+
+//GetPid
+DWORD GetPid();

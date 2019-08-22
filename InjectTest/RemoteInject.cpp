@@ -2,6 +2,7 @@
 #include "RemoteInject.h"
 #include <Windows.h>
 #include <tlhelp32.h>
+#define DEBUG 1
 
 //根据窗口句柄获取进程Pid
 //成功返回Pid 失败返回0
@@ -14,6 +15,9 @@ DWORD SearchProcessBySnapshot(WCHAR* WindowName);
 bool Inject(DWORD Pid, WCHAR* path);
 //检查对象是否为空 为空则返回1 并打印错误码
 bool check(HANDLE hThread);
+
+//GetPid
+DWORD GetPid();
 
 
 
@@ -35,6 +39,7 @@ DWORD SearchProcessByWindow(WCHAR* WindowName) {
 		printf("获取进程句柄失败 请重试");
 		return 0;
 	}
+	printf("获取进程Pid成功 Pid为:%d\n", Pid);
 	return Pid;
 }
 
@@ -57,6 +62,7 @@ DWORD SearchProcessBySnapshot(WCHAR* ProcessName) {
 	do {
 		if (wcscmp((CONST WCHAR*)pe.szExeFile, (CONST WCHAR*)ProcessName) == 0) {
 			CloseHandle(hSnapshot);
+			printf("找到目标 进程Pid为:%d\n", pe.th32ProcessID);
 			return pe.th32ProcessID;
 		}
 
@@ -116,8 +122,6 @@ bool Inject(DWORD Pid, WCHAR* path) {
 	return 1;
 } 
 
-
-
 bool check(HANDLE hThread) {
 	if (hThread == NULL) {
 		DWORD errorcode = GetLastError();
@@ -125,4 +129,41 @@ bool check(HANDLE hThread) {
 		return 1;
 	}
 	return 0;
+}
+
+//GetPid
+DWORD GetPid() {
+	DWORD option;
+	printf("***********请选择获取Pid的方式***********\n");
+	printf("1.根据窗口句柄(需要输入窗口名)\n2.根据进程快照获取进程Pid(需要输入进程名)\n3.手动输入Pid\n输入其它键退出...\n");
+	scanf_s("%d", &option);
+	switch (option) {
+		DWORD dwID;
+
+	case 1: {
+		WCHAR WName[100] = {0};
+		printf("请输入WindowName:");
+		wscanf_s(L"%s", WName, 100);
+		dwID = SearchProcessByWindow(WName);
+		return dwID;
+		break;
+	}
+	case 2: {
+		WCHAR PName[100] = {0};
+		printf("请输入ProcessName:");
+		wscanf_s(L"%s", PName, 100);
+		dwID = SearchProcessBySnapshot(PName);
+		return dwID;
+		break;
+	}
+	case 3:
+		printf("请输入Pid:");
+		scanf_s("%d", &dwID);
+		return dwID;
+		break;
+	default:
+		break;
+	}
+	return 0;
+
 }
